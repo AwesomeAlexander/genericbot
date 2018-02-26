@@ -1,7 +1,7 @@
 {
   "name": "genericbot",
   "version": "1.0.0",
-  "description": "A generic, futureproofed bot template for further development",
+  "description": "A generic, future-proofed bot template for further development",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
