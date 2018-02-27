@@ -1,3 +1,3 @@
 ### Generic Bot
 
-A generic, futureproofed bot template for further development
+A generic, future-proofed bot template for further development
