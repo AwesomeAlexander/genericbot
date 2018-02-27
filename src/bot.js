@@ -7,7 +7,7 @@ const fs = require('fs');
 const client = new Discord.Client();
 
 // All commands will be put in here
-// Will map names of commands to 
+// Will map names of commands to command objects with run functions and consts s
 client.commands = new Discord.Collection();
 
 // 'Global' Data to be used accross commands and events
