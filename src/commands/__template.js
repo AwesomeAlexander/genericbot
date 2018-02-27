@@ -2,7 +2,8 @@ const Discord = require('discord.js');
 
 module.exports = {
 
-	run: function(message) {
+	// Function Executed
+	run: function(message,args) {
 
 	},
 

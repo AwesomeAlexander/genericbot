@@ -13,6 +13,7 @@ client.commands = new Discord.Collection();
 // 'Global' Data to be used accross commands and events
 client.data = {
 	devs: config.developers,
+	prefix: config.prefix,
 	temp: {}
 };
 
