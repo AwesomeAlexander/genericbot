@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const config = require ("../config.json")
 
 module.exports = (client, message) => {
 	if (message.author.id === client.user.id) return; // Doesn't reply to it's own messages
@@ -7,17 +8,16 @@ module.exports = (client, message) => {
 
 	// Command Handler
 	if (message.content.startsWith(client.prefix))
-	let command = message.content.split(" ")[0].substr(client.prefix.length);
+	let command = message.content.split(" ")[0].substr(config.prefix.length);
 	client.commands.forEach((cmd,name,commands) => {
-		if (client.commands === command && 
+		if ((name === command || cmd.consts.aliases.includes(command)) && 
 			client.comparePerms(
-				client.evaluatePerms(message.member || message.author),
+				client.evaluatePerms(message.member || message.author, (!!message.guild ? message.channel : null)),
 				cmd.consts.permsNeeded,
 				true /* By default allows superusers to execute all commands*/
 			)
 		) {
-			cmd.run(message,message.content.substr(command.length+client.prefix.length));
+			cmd.run(message,message.content.substr(command.length+config.prefix.length));
 		}
-	})
-	// TODO: Check Command Aliases
+	});
 };

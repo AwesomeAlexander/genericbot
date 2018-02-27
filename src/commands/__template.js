@@ -8,6 +8,8 @@ module.exports = {
 	},
 
 	consts: {
+		name: "__template",
+		description: "",
 		aliases: [],
 		permsNeeded: []
 	}

@@ -12,8 +12,6 @@ client.commands = new Discord.Collection();
 
 // 'Global' Data to be used accross commands and events
 client.data = {
-	devs: config.developers,
-	prefix: config.prefix,
 	temp: {}
 };
 
@@ -38,7 +36,7 @@ client.evaluatePerms = function(user, context=null) {
 	// TODO: Add in custom permissions (e.g. "MODERATE") tied in with db
 
 	// Adds Developers
-	if (client.data.devs.includes(user.id)) out.push("SUPERUSER");
+	if (config.developers.includes(user.id)) out.push("SUPERUSER");
 
 	return out;
 }
