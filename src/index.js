@@ -14,7 +14,7 @@ global.logger = async () => {
 };
 
 // Spawn bot using shards
-require('./shard.js');
+// require('./shard.js');
 
 // Non-sharded / Regular
-// require('./bot.js');
+require('./bot.js');
