@@ -17,7 +17,7 @@ module.exports = (client, message) => {
 				true /* By default allows superusers to execute all commands*/
 			)
 		) {
-			cmd.run(message,message.content.substr(command.length+config.prefix.length));
+			cmd.run(client, message, message.content.substr(command.length+config.prefix.length));
 		}
 	});
 };
