@@ -1,14 +1,26 @@
 {
   "name": "genericbot",
   "version": "1.0.0",
-  "description": "A generic, future-proofed bot template for further development",
-  "main": "src/index.js",
+  "description": "",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Alexander Ng",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AwesomeAlexander/genericbot.git"
+  },
+  "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AwesomeAlexander/genericbot/issues"
+  },
+  "homepage": "https://github.com/AwesomeAlexander/genericbot#readme",
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  },
   "dependencies": {
-    "discord.js": "^11.3.0"
+    "@types/node": "^10.0.0",
+    "discord.js": "^11.3.2"
   }
 }
