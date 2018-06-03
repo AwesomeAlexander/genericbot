@@ -7,7 +7,8 @@ import config from './Config';
  */
 export class Client extends Discord.Client {
 	public tmpData = {};
-	commands: Command[];
+	commands: Command[] = [];
+	webhooks: Discord.Webhook[] = [];
 }
 
 /*============================================================================================*/

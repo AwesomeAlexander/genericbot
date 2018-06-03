@@ -14,6 +14,7 @@ fs.readdir(path.join(__dirname,'commands'),"utf8", (err,files) => {
 	if (err) logger(":ERROR",err);
 
 	files.forEach(file => {
+		if (file.startsWith('_')) return;
 		import( path.join(__dirname,'commands',file) ).then(ret=>{
 			client.commands.push(ret['default']);
 		}).catch(console.error);
@@ -25,9 +26,9 @@ fs.readdir(path.join(__dirname,'events'),"utf8", (err,files) => {
 	if (err) logger(":ERROR",err);
 
 	files.forEach(file => {
-		let name = file.split(".")[0];
+		if (file.startsWith('_')) return;
 		import( path.join(__dirname,'events',file) ).then(ret=>{
-			client.on(name, (...args) => ret['default'](client, ...args));
+			client.on(file.split('.')[0], (...args) => ret['default'](client, ...args));
 		}).catch(console.error);
 	});
 });

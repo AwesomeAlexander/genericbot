@@ -13,7 +13,7 @@ function whenCalled(client: Client, message: Discord.Message, args: string[]) {
 export default new Command(
 	"NAME", // The name of the command, and how it is called by users.
 	"DESCRIPTION", // Description of what the command does, used in command help.
-	whenCalled, // Function (defined above) that runs when the command is run .
+	whenCalled, // Function (defined above) that runs when the command is run.
 	[], // Permissions needed to run the command.
 	[], // Any additional aliases the user can call the command by.
 	[] // Usage examples - used in 'help' description.

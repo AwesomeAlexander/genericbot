@@ -74,17 +74,19 @@ export function crawlDir(parentDir: string, doThis: (parentDir: string,file: str
  * @param context Optional Context field of the Channel. If not provided, Discord Permissions will not be added.
  */
 export function evaluatePermissions(user: Discord.User, context?: Discord.Channel): string[] {
-	let out: string[];
+	let out: string[] = [];
 
 	if (context && user instanceof Discord.GuildMember) {
-		out.concat(generatePermissions([user.permissionsIn(context)]));
+		out = out.concat(generatePermissions([user.permissionsIn(context)]));
 	}
+
+	// Hardcoded User
+	out.push("USER-"+user.id);
 
 	// TODO: Add in custom permissions (e.g. "MODERATE") tied in with db
 
 	// Adds Developers
 	if (config.developers.includes(user.id)) out.push("SUPERUSER");
-	// TODO: fix in typescript
 
 	return out;
 }
@@ -94,7 +96,7 @@ export function evaluatePermissions(user: Discord.User, context?: Discord.Channe
  * @param permissions Permissions object to read
  */
 export function generatePermissions(permissions: (string | Discord.Permissions | Discord.PermissionObject)[]): string[] {
-	let out: string[];
+	let out: string[] = [];
 
 	for (let i of permissions) {
 		if (typeof i === "string") {
@@ -121,7 +123,7 @@ const digits = "1234567890";
  * @returns Array of 'tokens'
  */
 export function parseTokens(str: string): string[] {
-	var out: string[];
+	var out: string[] = [];
 	
 	str += "~"; // Ending character to help collect last word
 	for (var head=0,tail=head;head<str.length;) {
@@ -143,13 +145,34 @@ export function parseTokens(str: string): string[] {
 
 /**
  * Parses command options like -v, -r, --do-some-option, etc
- * @param str String input
+ * @param input String input
  * @returns Dictionary of string: boolean items
  */
-export function parseCommandOptions(str: string | string[]): {[opt: string]: boolean;} {
-	// TODO: Parse options for commands
-	
-	return null;
+export function parseCommandOptions(input: string | string[]): string[] {
+	let out: string[] = [];
+
+	if (typeof input === "string") input = parseTokens(input);
+
+	for (let i=0;i<input.length-1;i++) {
+		let cur = input[i], aft = input[i+1];
+		
+		if (cur === '-') {
+			i++; // increment to next (index at aft)
+			if (aft === '-') { // Long option
+				let through = input[++i]; // Element after aft
+				while (i<input.length-1 &&
+					(input[i] !== ' ' || input[i-1] === '\\') // Keep going until non-backslashed space
+				) {
+					through += input[i++];
+				}
+				out.push(through);
+			} else if (aft.length === 1) { // Short option
+				out.push(input[i]); // out.push(aft); also works
+			}
+		}
+	}
+
+	return out;
 }
 
 /**

@@ -1,12 +1,12 @@
 import * as Discord from 'discord.js';
-import { parseTokens, generatePermissions, evaluatePermissions } from './Functions';
+import { parseTokens, generatePermissions, evaluatePermissions, parseCommandOptions } from './Functions';
 import config from './Config';
 import { Client } from './exports';
 
 /**
  * A type of function that could be called when a Command is invoked
  */
-export type Runnable = (client: Client, message: Discord.Message, args: string[]) => void;
+export type Runnable = (client: Client, message: Discord.Message, args: string[], options?: string[]) => void;
 
 /**
  * Command class to be instantiazed for commands to be called by users using the bot
@@ -26,7 +26,7 @@ export class Command {
 	 * @param permissionsNeededToRun Optional: Any permissions you need to run the Command
 	 * @param aliases Optional: Aliases to reference the command by when calling
 	 * @param usageExamples Optional: Usage examples
-	 * @param override Whether the command's permissions can be overrided by developers. Defaults to value provided by config.yaml, which is client-wide. Do not change unless necessary for specific command.
+	 * @param override Whether the command's permissions can be overriden by developers. Defaults to value provided by config.yaml, which is client-wide. Do not change unless necessary for specific command.
 	 */
 	constructor(
 		public name: string,
@@ -57,8 +57,15 @@ export class Command {
 	public run(client: Client, message: Discord.Message, args: string | string[]) {
 		if (typeof args === "string") args = parseTokens(args);
 
+		let options = parseCommandOptions(args);
+
+		// Test for help option
+		if (['h','help'].some(opt=>options.indexOf(opt) > -1)) {
+			message.channel.send(this.sendHelp());
+		}
+
 		if (this.permissionsSatisfy(evaluatePermissions(message.author, message.channel))) {
-			this.onRun(client, message, args);
+			this.onRun(client, message, args, options);
 		}
 	}
 
@@ -71,11 +78,48 @@ export class Command {
 	public permissionsSatisfy(perms: string[], override: boolean = this.override): boolean {
 		if (override && perms.indexOf("SUPERUSER") > -1) return true;
 
-		for (let p of this.permissionsNeeded)
-			if (!(perms.indexOf(p) > -1)) return false;
+		for (let p of this.permissionsNeeded) {
+			if (p.startsWith("USER-") && perms.indexOf(p.substring(5)) > -1) return true; // OR - Quick out if hardcoded User
+			if (!(perms.indexOf(p) > -1)) return false; // AND - All must be true
+		}
 
 		return true;
 	}
+
+	/**
+	 * Gives a help command
+	 */
+	public sendHelp() {
+		let out = new Discord.RichEmbed()
+			.setTitle("Command Help: "+this.name)
+			.setDescription(this.description)
+			//.addBlankField()
+			.setTimestamp();
+		let val = "";
+
+		// Aliases
+		val = "";
+		if (!!this.triggers && this.triggers.length > 1)
+			val += (this.triggers.join('`, `')+'`').substring(this.name.length+3);
+		else val += "NONE";
+		out.addField("Aliases", val);
+
+		// Usage examples
+		if (!!this.usageExamples && this.usageExamples.length > 1)
+			out.addField('How To Use','`'+this.usageExamples.join('`\n`')+'`');
+
+		// Permissions needed
+		val = "";
+		if (!!this.permissionsNeeded && this.permissionsNeeded.length > 1)
+			val += this.permissionsNeeded.join('\n');
+		else val += "NONE";
+		out.addField("Permissions Needed to Run", val);
+
+
+		return out;
+	}
+
+
 }
 
 /**
