@@ -8,14 +8,27 @@ import * as path from 'path';
 // The Client ("bot") to be made
 const client = new Client();
 
-// TODO: crawl through command files and event files. set up Message.ts event file 
-// WAIT - IDEA - CRAWLER FOR COMMAND STRUCTURE WITH SUBCOMMANDS AND OPTIONS AND STUFF
 
+// Commands
 fs.readdir(path.join(__dirname,'commands'),"utf8", (err,files) => {
 	if (err) logger(":ERROR",err);
 
 	files.forEach(file => {
-		import(file).then(ret=>client.commands.push(ret)).catch(console.error);
+		import( path.join(__dirname,'commands',file) ).then(ret=>{
+			client.commands.push(ret);
+		}).catch(console.error);
+	});
+});
+
+// Events
+fs.readdir(path.join(__dirname,'events'),"utf8", (err,files) => {
+	if (err) logger(":ERROR",err);
+
+	files.forEach(file => {
+		let name = file.split(".")[0];
+		import( path.join(__dirname,'events',file) ).then(ret=>{
+			client.on(name, (...args) => ret(client,args));
+		}).catch(console.error);
 	});
 });
 

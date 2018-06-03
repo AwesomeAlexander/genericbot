@@ -1,7 +1,6 @@
 import * as Discord from 'discord.js';
-// import * as fs from "fs";
-// import * as path from 'path';
 import { Command } from './Commands';
+import config from './Config';
 
 /**
  * Modified Discord Bot Client with added stuff.
@@ -12,6 +11,8 @@ export class Client extends Discord.Client {
 }
 
 /*============================================================================================*/
+
+export { Discord, config };
 
 // Other files' exports
 

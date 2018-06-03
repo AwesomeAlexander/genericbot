@@ -10,17 +10,20 @@
     "type": "git",
     "url": "git+https://github.com/AwesomeAlexander/genericbot.git"
   },
-  "author": "",
+  "author": "Alexander",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/AwesomeAlexander/genericbot/issues"
   },
   "homepage": "https://github.com/AwesomeAlexander/genericbot#readme",
-  "devDependencies": {
-    "typescript": "^2.8.3"
-  },
   "dependencies": {
-    "@types/node": "^10.0.0",
-    "discord.js": "^11.3.2"
+    "@types/yamljs": "^0.2.30",
+    "discord.js": "^11.3.2",
+    "typescript": "^2.9.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.3.0",
+    "tslint": "^5.10.0"
   }
 }

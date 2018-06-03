@@ -1,5 +1,6 @@
 import * as Discord from 'discord.js';
-import { parseTokens, yieldPermissions, evaluatePermissions } from './Functions';
+import { parseTokens, generatePermissions, evaluatePermissions } from './Functions';
+import config from './Config';
 import { Client } from './exports';
 
 /**
@@ -8,14 +9,14 @@ import { Client } from './exports';
 export type Runnable = (client: Client, message: Discord.Message, args: string[]) => void;
 
 /**
- * Command class representing a class
- * new Command("somecommand","this is a command",function() {},[READ_MESSAGES],["someothercommand","fewhiowefh"],);
+ * Command class to be instantiazed for commands to be called by users using the bot
  */
 export class Command {
 	triggers: string[]; // Things that invoke the command
 	usageExamples: string[];
+	permissionsNeeded: string[];
+	override: boolean;
 	private onRun: Runnable;
-	private permissionsNeeded: string[];
 
 	/**
 	 * Creates a new Command object
@@ -25,58 +26,63 @@ export class Command {
 	 * @param permissionsNeededToRun Optional: Any permissions you need to run the Command
 	 * @param aliases Optional: Aliases to reference the command by when calling
 	 * @param usageExamples Optional: Usage examples
+	 * @param override Whether the command's permissions can be overrided by developers. Defaults to value provided by config.yaml, which is client-wide. Do not change unless necessary for specific command.
 	 */
-	constructor(public name: string,public description: string,onRun: Runnable,permissionsNeededToRun?: (string | Discord.Permissions | Discord.PermissionObject)[],aliases?: string[],usageExamples?: string | string[]) {
-		
-		this.triggers = (!!aliases ? [].concat([name],aliases) : [name]);
+	constructor(
+		public name: string,
+		public description: string,
+		onRun: Runnable,
+		permissionsNeededToRun?: (string | Discord.Permissions | Discord.PermissionObject)[],
+		aliases?: string[],
+		usageExamples?: string | string[],
+		override = config.override) {
+
+		this.triggers = [name].concat(aliases || []);
 
 		this.usageExamples = ((typeof usageExamples === "string") ? [usageExamples] : usageExamples);
 
 		this.onRun = onRun;
 
-		this.permissionsNeeded = yieldPermissions(permissionsNeededToRun);
+		this.override = override;
+
+		this.permissionsNeeded = generatePermissions(permissionsNeededToRun);
 	}
 
 	/**
-	 * TODO
-	 * @param client 
-	 * @param message 
-	 * @param args 
+	 * Wrapper for running the command if provided permissions satisfy
+	 * @param client The Client (bot) object
+	 * @param message The Message object provided by discord.js detailing message data & metadata
+	 * @param args Arguments given when command is called
 	 */
 	public run(client: Client, message: Discord.Message, args: string | string[]) {
 		if (typeof args === "string") args = parseTokens(args);
 
-		if (this.permissionsSatisfy(evaluatePermissions(message.author,message.channel))) {
-			this.onRun(client,message,args);
+		if (this.permissionsSatisfy(evaluatePermissions(message.author, message.channel))) {
+			this.onRun(client, message, args);
 		}
 	}
 
 	/**
-	 * TODO
-	 * @param perms 
-	 * @param override 
+	 * Returns whether the permissions given satisfy this command's permissions,
+	 * and subsequently whether the command can be run by a user with those permissions.
+	 * @param perms Permissions to be compared.
+	 * @param override Whether to factor in superuser overrides.
 	 */
-	public permissionsSatisfy(perms: string[], override = true) {
+	public permissionsSatisfy(perms: string[], override: boolean = this.override): boolean {
 		if (override && perms.indexOf("SUPERUSER") > -1) return true;
-	
-		for (let p of this.permissionsNeeded) if (!(perms.indexOf(p) > -1)) return false;
-	
+
+		for (let p of this.permissionsNeeded)
+			if (!(perms.indexOf(p) > -1)) return false;
+
 		return true;
 	}
-}
-
-/**
- * Command with a parent command
- */
-export class SubCommand extends Command {
-	parent: Command; // TODO: consider modules?
 }
 
 /**
  * TODO
  */
 export class CommandHandler {
-	// TODO: use lambdas, token parser, etc.
+	// TODO: RECONSIDER DESIGN
 	// Event based? would make easier for function runs - client.on('command')?
 	// could then do Discord 'fire' command...?
 	// crawler - can recurse it's own commandhandlers for each dir for modules

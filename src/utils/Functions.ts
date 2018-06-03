@@ -1,6 +1,13 @@
+/* [Development]
+This file will contain utility functions only.
+None of the functions are state-modifying.
+*/
+
 import * as Discord from "discord.js";
 import * as fs from 'fs';
 import * as path from 'path';
+
+import config from './Config';
 
 /**
  * Returns a formatted timestamp of the given date,
@@ -22,8 +29,7 @@ export function logger(...args): void {
 	let type: string; // The type / source given
 
 	for (let i of args) { // Looping through all args
-		if (typeof i === 'string' && i.charAt(0)===':') { // Set type
-			// TODO: figure out why there is no <string>.startsWith
+		if (typeof i === 'string' && i.startsWith(':')) { // Set type
 			type = i.substring(1).toUpperCase();
 		} else { // Regular log
 			console.log(`[${timestamp()}]${!!type ? ` ${type} | ` : ' '}${i}`);
@@ -71,23 +77,23 @@ export function evaluatePermissions(user: Discord.User, context?: Discord.Channe
 	let out: string[];
 
 	if (context && user instanceof Discord.GuildMember) {
-		out.concat(yieldPermissions([user.permissionsIn(context)]));
+		out.concat(generatePermissions([user.permissionsIn(context)]));
 	}
 
 	// TODO: Add in custom permissions (e.g. "MODERATE") tied in with db
 
 	// Adds Developers
-	// if (config.developers.includes(user.id)) out.push("SUPERUSER");
+	if (config.developers.includes(user.id)) out.push("SUPERUSER");
 	// TODO: fix in typescript
 
 	return out;
 }
 
 /**
- * Yields a string array representing Discord Permissions + Bot Permissions
+ * Generates an string array representing Discord Permissions + Bot Permissions
  * @param permissions Permissions object to read
  */
-export function yieldPermissions(permissions: (string | Discord.Permissions | Discord.PermissionObject)[]): string[] {
+export function generatePermissions(permissions: (string | Discord.Permissions | Discord.PermissionObject)[]): string[] {
 	let out: string[];
 
 	for (let i of permissions) {
